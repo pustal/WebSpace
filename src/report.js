@@ -9,6 +9,9 @@ import { onTv, runAsRoot, shellQuote } from './luna.js';
 import { totalBytes, volumeOf } from './scan.js';
 import { formatBytes } from './format.js';
 
+/** Characters of the report written per command (well under the 128 KB limit of one command line). */
+const PIECE_CHARS = 32 * 1024;
+
 /** The report's file name, in the app's folder. */
 export const REPORT_NAME = 'webspace-report.txt';
 
@@ -81,9 +84,20 @@ export async function saveReport(result) {
   if (!onTv() || !result.root || !result.ownFolder) throw new Error('saving the report needs root access on the TV');
   const path = result.ownFolder + '/' + REPORT_NAME;
   const text = reportText(result);
-  // A here-document with a delimiter the report cannot contain (it is checked).
+  // Here-documents with a delimiter the report cannot contain (it is checked),
+  // in pieces: a command line (one sh -c argument) is limited to 128 KB.
   const marker = 'WEBSPACE_REPORT_END';
   if (text.indexOf(marker) >= 0) throw new Error('the report could not be written');
-  await runAsRoot('cat > ' + shellQuote(path) + " <<'" + marker + "'\n" + text + marker + '\nchmod 644 ' + shellQuote(path));
+  const quoted = shellQuote(path);
+  await runAsRoot(': > ' + quoted + ' && chmod 644 ' + quoted);
+  const lines = text.split('\n');
+  let piece = '';
+  for (let i = 0; i < lines.length; i++) {
+    piece += lines[i] + (i < lines.length - 1 ? '\n' : '');
+    if (piece.length > PIECE_CHARS || i === lines.length - 1) {
+      if (piece) await runAsRoot('cat >> ' + quoted + " <<'" + marker + "'\n" + piece + (piece.slice(-1) === '\n' ? '' : '\n') + marker);
+      piece = '';
+    }
+  }
   return path;
 }

@@ -12,7 +12,7 @@
  *
  * Without root only step 1 runs (if the TV allows it), with no sizes.
  */
-import { call, onTv, runAsRoot, shellQuote } from './luna.js';
+import { call, onTv, runAsRoot, runAsRootLong, shellQuote } from './luna.js';
 import { demoScan } from './demo.js';
 
 /**
@@ -94,7 +94,8 @@ async function listApps(root) {
   } catch (error) {
     if (!root) throw error;
   }
-  const output = await runAsRoot("luna-send -n 1 -f luna://com.webos.applicationManager/listApps '{}'");
+  // -f prints the reply over many short lines (see runAsRootLong); it is long: every app's appinfo.
+  const output = await runAsRootLong("luna-send -n 1 -f luna://com.webos.applicationManager/listApps '{}'");
   const reply = JSON.parse(output.slice(output.indexOf('{')));
   if (!Array.isArray(reply.apps)) throw new Error('the application manager listed no apps');
   return reply.apps;
@@ -212,7 +213,7 @@ export async function scan(onProgress) {
     'echo "@@DF"',
     'df -k 2>/dev/null',
   ].join('; ');
-  const output = await runAsRoot(script);
+  const output = await runAsRootLong(script);
   const section = (name) => {
     const start = output.indexOf('@@' + name);
     if (start < 0) return '';
@@ -244,7 +245,7 @@ export async function scan(onProgress) {
   }
 
   onProgress('Measuring the services and data…');
-  const extraSizes = matches.size ? parseDu(await runAsRoot('du -skx ' + Array.from(matches.keys()).map(shellQuote).join(' ') + ' 2>/dev/null')) : new Map();
+  const extraSizes = matches.size ? parseDu(await runAsRootLong('du -skx ' + Array.from(matches.keys()).map(shellQuote).join(' ') + ' 2>/dev/null')) : new Map();
 
   for (const app of apps) {
     if (app.folder && installSizes.has(app.folder)) {

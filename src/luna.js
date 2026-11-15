@@ -60,6 +60,38 @@ export async function runAsRoot(command) {
   return typeof reply.stdoutString === 'string' ? reply.stdoutString : '';
 }
 
+/**
+ * How many lines of a long output one exec call returns. The Homebrew
+ * Channel's service runs commands with Node's child_process, which refuses
+ * an output above its buffer (200 KB by default on the TVs' Node): long
+ * outputs are written to a file and read back in slices of short lines.
+ */
+const LINES_PER_SLICE = 1000;
+
+/**
+ * Runs @p command as root like runAsRoot(), for commands whose output can
+ * be long (lists of apps or folders): the output goes to a temporary file,
+ * read back a slice of lines at a time. Its lines must be short (well under
+ * 100 characters on average), which is true of du, find and luna-send -f.
+ * @param {string} command
+ * @returns {Promise<string>} its standard output
+ */
+export async function runAsRootLong(command) {
+  const file = '/tmp/webspace-' + Date.now() + '-' + Math.floor(Math.random() * 1e6) + '.out';
+  const quoted = shellQuote(file);
+  const lines = Number((await runAsRoot('(' + command + ') > ' + quoted + ' 2>/dev/null; wc -l < ' + quoted)).trim()) || 0;
+  let output = '';
+  try {
+    // One slice more than the line count: the last line may have no newline.
+    for (let first = 1; first <= lines + 1; first += LINES_PER_SLICE) {
+      output += await runAsRoot("sed -n '" + first + ',' + (first + LINES_PER_SLICE - 1) + "p' " + quoted);
+    }
+  } finally {
+    await runAsRoot('rm -f ' + quoted).catch(() => undefined);
+  }
+  return output;
+}
+
 /** Whether root commands work (the TV is rooted and the Homebrew Channel answers). */
 export async function rootAvailable() {
   try {
