@@ -68,6 +68,10 @@ export function reportText(result) {
         lines.push('      ' + pad(folder.kind, 8) + pad(formatBytes(folder.bytes), 11, true) + '  ' + folder.path
           + (volume ? '  [' + volume.mount + ']' : ''));
       }
+      if (app.largestFiles.length) {
+        lines.push('      largest files:');
+        for (const file of app.largestFiles) lines.push('        ' + pad(formatBytes(file.bytes), 10, true) + '  ' + file.path);
+      }
     }
     lines.push('');
   }

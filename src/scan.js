@@ -33,6 +33,12 @@ const EXTRA_ROOTS = [
 /** How deep below each of those roots the names are looked at. */
 const EXTRA_DEPTH = 4;
 
+/** Apps at least this big get their largest files listed (to see what fills them). */
+const BIG_APP_BYTES = 20 * 1024 * 1024;
+/** Files listed per big app, and the smallest one worth listing. */
+const LARGEST_FILES = 8;
+const LARGEST_FILE_MIN_KB = 1024;
+
 /** File system types that are the TV's own writable storage. */
 const STORAGE_TYPES = ['ext2', 'ext3', 'ext4', 'f2fs', 'ubifs', 'jffs2', 'btrfs', 'xfs'];
 
@@ -53,6 +59,7 @@ const STORAGE_TYPES = ['ext2', 'ext3', 'ext4', 'f2fs', 'ubifs', 'jffs2', 'btrfs'
  * @property {number|null} appBytes    install folder size (null: unknown)
  * @property {number|null} extraBytes  services and data elsewhere (null: unknown)
  * @property {FolderSize[]} folders
+ * @property {{path: string, bytes: number}[]} largestFiles  its biggest files (apps above BIG_APP_BYTES only)
  */
 
 /**
@@ -186,6 +193,7 @@ export async function scan(onProgress) {
       appBytes: null,
       extraBytes: null,
       folders: [],
+      largestFiles: [],
     }));
   const own = apps.find((app) => app.id === __APP_ID__);
   const ownFolder = own ? own.folder : decodeURIComponent(location.pathname.replace(/\/[^/]*$/, ''));
@@ -260,6 +268,24 @@ export async function scan(onProgress) {
     match.app.extraBytes += bytes;
     match.app.folders.push({ path, bytes, kind: match.kind });
     if (match.app.appBytes === null) match.app.appBytes = 0;
+  }
+
+  // What fills the big apps: their largest files (in all their folders).
+  const big = apps.filter((app) => !app.system && (totalBytes(app) || 0) >= BIG_APP_BYTES && app.folders.length > 0);
+  if (big.length) {
+    onProgress('Looking at the largest files…');
+    const listing = big.map((app) => 'echo "@@APP ' + app.id + '"; find ' + app.folders.map((folder) => shellQuote(folder.path)).join(' ')
+      + ' -xdev -type f -size +' + LARGEST_FILE_MIN_KB + "k -exec du -k {} \\; 2>/dev/null | sort -rn | head -n " + LARGEST_FILES).join('; ');
+    let current = null;
+    for (const line of (await runAsRootLong(listing)).split('\n')) {
+      if (line.indexOf('@@APP ') === 0) {
+        const id = line.slice(6).trim();
+        current = big.find((app) => app.id === id) || null;
+        continue;
+      }
+      const match = /^(\d+)\s+(.+)$/.exec(line.trim());
+      if (current && match) current.largestFiles.push({ path: match[2], bytes: Number(match[1]) * 1024 });
+    }
   }
 
   return { apps, volumes, root, ownFolder, when: new Date(), note: '' };

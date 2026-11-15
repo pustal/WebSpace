@@ -188,14 +188,24 @@ function renderRows(apps) {
   });
 }
 
-/** Scrolls the list so the highlighted row is in view. */
+/** The list's scroll position, kept across renders (each render builds a new list element). */
+let listScroll = 0;
+
+/**
+ * Scrolls the list so the highlighted row is in view, moving it as little as
+ * possible. The list is the rows' offsetParent (it is position: relative), so
+ * a row's offsetTop is already measured from the list's top.
+ */
 function keepFocusedRowVisible(list) {
-  if (state.focus.zone !== 'list') return;
-  const row = list.children[state.focus.index];
-  if (!row) return;
-  const top = row.offsetTop - list.offsetTop;
-  if (top < list.scrollTop) list.scrollTop = top;
-  else if (top + row.offsetHeight > list.scrollTop + list.clientHeight) list.scrollTop = top + row.offsetHeight - list.clientHeight;
+  list.scrollTop = listScroll;
+  const row = state.focus.zone === 'list' ? list.children[state.focus.index] : null;
+  if (row) {
+    const top = row.offsetTop;
+    const bottom = top + row.offsetHeight;
+    if (top < list.scrollTop) list.scrollTop = top;
+    else if (bottom > list.scrollTop + list.clientHeight) list.scrollTop = bottom - list.clientHeight;
+  }
+  listScroll = list.scrollTop;
 }
 
 // ---------------------------------------------------------------- dialogs
@@ -243,9 +253,18 @@ function showDetails(app) {
         h('span', { class: 'folder-path', text: folder.path + (volume ? '   (' + volume.mount + ')' : '') }),
       ]);
     });
+  const largest = app.largestFiles.length === 0 ? [] : [
+    h('h3', { text: 'Largest files' }),
+    h('div', { class: 'folders' }, app.largestFiles.map((file) => h('div', { class: 'folder' }, [
+      h('span', { class: 'folder-kind', text: '' }),
+      h('span', { class: 'folder-size', text: formatBytes(file.bytes) }),
+      h('span', { class: 'folder-path', text: file.path }),
+    ]))),
+  ];
   openModal(app.title, [
     h('p', { class: 'dim', text: app.id + (app.system ? ' · built into the firmware' : '') + ' · total ' + size(totalBytes(app)) }),
     h('div', { class: 'folders' }, rows),
+    ...largest,
   ], [{ label: 'Close', action: closeModal }]);
 }
 

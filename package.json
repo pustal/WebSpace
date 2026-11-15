@@ -1,6 +1,6 @@
 {
   "name": "webspace",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Lists the apps installed on an LG webOS TV and the storage each one uses.",
   "private": true,
   "type": "module",

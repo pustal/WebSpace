@@ -13,7 +13,10 @@ function app(id, title, appMb, dataMb, system = false) {
   const base = system ? '/usr/palm/applications/' : '/media/developer/apps/usr/palm/applications/';
   const folders = [{ path: base + id, bytes: appMb * MB, kind: 'install' }];
   if (dataMb) folders.push({ path: '/media/developer/apps/usr/palm/data/' + id, bytes: dataMb * MB, kind: 'data' });
-  return { id, title, icon: '', folder: base + id, system, appBytes: appMb * MB, extraBytes: dataMb * MB, folders };
+  const largestFiles = appMb + dataMb >= 20 && !system
+    ? [{ path: base + id + '/data/big-file.bin', bytes: Math.round((appMb + dataMb) * 0.6 * MB) }]
+    : [];
+  return { id, title, icon: '', folder: base + id, system, appBytes: appMb * MB, extraBytes: dataMb * MB, folders, largestFiles };
 }
 
 /** @returns {Promise<import('./scan.js').ScanResult>} */

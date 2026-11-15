@@ -215,3 +215,5 @@ html, body {
 .swatch:first-child { margin-left: 0; }
 .swatch.install { background: var(--install); }
 .swatch.data { background: var(--data); }
+
+.modal-panel h3 { margin: 1.4vw 0 0.2vw; font-size: 1.2vw; color: var(--dim); }

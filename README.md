@@ -2,14 +2,15 @@
 
 # WebSpace
 
-**Version 1.0.1** · A small app for LG webOS TVs that lists the installed apps and the storage each one
+**Version 1.0.2** · A small app for LG webOS TVs that lists the installed apps and the storage each one
 uses, so you can see what is filling the TV.
 
 - **Every app with its size:** the app's own install folder, plus the folders elsewhere that carry its
   id (its services and the data the TV keeps for it), sorted by size or by name.
 - **The TV's storage:** used and free space of each of the TV's writable storage areas, and of USB
   drives.
-- **Details:** OK on an app lists its folders, their sizes and the storage they are on.
+- **Details:** OK on an app lists its folders, their sizes and the storage they are on, and, for apps of
+  20 MB or more, their largest files (so you can see what fills them; also in the report).
 - **A text report:** after every scan the list is also saved as `webspace-report.txt` in the app's own
   folder on the TV (`/media/developer/apps/usr/palm/applications/org.webspace.app/`), to read later, for
   example over SSH.
