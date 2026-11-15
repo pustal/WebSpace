@@ -1,0 +1,28 @@
+{
+  "name": "webspace",
+  "version": "1.0.0",
+  "description": "Lists the apps installed on an LG webOS TV and the storage each one uses.",
+  "private": true,
+  "type": "module",
+  "license": "GPL-3.0-only",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "build:dev": "node build.mjs --dev",
+    "serve": "node scripts/serve.mjs",
+    "package": "npm run build && ares-package dist -o out && node scripts/manifest.mjs",
+    "manifest": "node scripts/manifest.mjs",
+    "tv:install": "node scripts/tv.mjs install",
+    "tv:launch": "node scripts/tv.mjs launch",
+    "tv:deploy": "npm run package && npm run tv:install && npm run tv:launch"
+  },
+  "dependencies": {
+    "qrcode-generator": "^2.0.4"
+  },
+  "devDependencies": {
+    "@webos-tools/cli": "^3.2.6",
+    "esbuild": "0.24.2"
+  }
+}

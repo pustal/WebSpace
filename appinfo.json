@@ -1,0 +1,17 @@
+{
+  "id": "org.webspace.app",
+  "version": "1.0.0",
+  "vendor": "WebSpace",
+  "type": "web",
+  "main": "index.html",
+  "title": "WebSpace",
+  "icon": "icons/icon.png",
+  "largeIcon": "icons/largeIcon.png",
+  "bgColor": "#10162e",
+  "iconColor": "#1b2a5c",
+  "resolution": "1920x1080",
+  "disableBackHistoryAPI": true,
+  "handlesRelaunch": false,
+  "uiRevision": 2,
+  "requiredACG": []
+}

@@ -1,0 +1,217 @@
+/*
+ * WebSpace styles. Sized for a 1920x1080 TV viewed from the sofa; everything
+ * scales from the viewport width (1vw = 19.2 px at 1080p), so 1280x720 sets
+ * look the same.
+ */
+
+:root {
+  --bg: #10162e;
+  --panel: #1a2346;
+  --panel-light: #243063;
+  --text: #eef1ff;
+  --dim: #9aa5d1;
+  --accent: #58c6ff;
+  --install: #58c6ff;
+  --data: #ffb347;
+  --focus: #ffd34d;
+  --danger: #ff6b6b;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "LG Smart UI", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 1.05vw;
+  overflow: hidden;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 2.2vw 3vw 1.5vw;
+}
+
+.dim { color: var(--dim); }
+
+/* ---------------------------------------------------------------- header */
+
+.header {
+  display: flex;
+  align-items: center;
+}
+
+.logo { width: 4.2vw; height: 4.2vw; border-radius: 0.9vw; margin-right: 1.2vw; }
+
+.heading { flex: 1; }
+.heading h1 { margin: 0; font-size: 2.1vw; letter-spacing: 0.02em; }
+.subtitle { margin: 0.2vw 0 0; color: var(--dim); }
+
+.toolbar { display: flex; }
+.toolbar .button { margin-left: 0.8vw; }
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.6vw 1.1vw;
+  border-radius: 0.6vw;
+  background: var(--panel-light);
+  border: 0.15vw solid transparent;
+  white-space: nowrap;
+}
+.button.focused { border-color: var(--focus); background: #34407a; }
+
+.key-dot { width: 0.7vw; height: 0.7vw; border-radius: 50%; margin-right: 0.5vw; }
+.key-red .key-dot { background: #ff4d4d; }
+.key-green .key-dot { background: #3ccf6a; }
+.key-yellow .key-dot { background: #ffd12e; }
+.key-blue .key-dot { background: #3b82ff; }
+
+/* ---------------------------------------------------------------- storage */
+
+.storage {
+  display: flex;
+  margin-top: 1.6vw;
+}
+.storage > * { margin-right: 1.2vw; }
+
+.volume {
+  flex: 1;
+  max-width: 28vw;
+  padding: 0.9vw 1.1vw;
+  border-radius: 0.8vw;
+  background: var(--panel);
+}
+.volume.usb { opacity: 0.85; }
+.volume-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.volume-numbers { margin-top: 0.4vw; color: var(--dim); }
+
+.bar {
+  height: 0.7vw;
+  margin-top: 0.5vw;
+  border-radius: 0.35vw;
+  background: #0c1124;
+  overflow: hidden;
+}
+.bar-fill { height: 100%; background: var(--accent); border-radius: 0.35vw; }
+.bar-fill.full { background: var(--danger); }
+
+.status { margin: 1.2vw 0 0.6vw; color: var(--dim); min-height: 1.4em; }
+
+/* ---------------------------------------------------------------- list */
+
+.list {
+  flex: 1;
+  overflow: hidden; /* scrolled by the app, following the highlight */
+  position: relative;
+}
+
+.row {
+  /* Flex rather than grid: webOS 4 (Chromium 53) has no CSS grid. */
+  display: flex;
+  align-items: center;
+  padding: 0.55vw 1vw;
+  margin-bottom: 0.35vw;
+  border-radius: 0.7vw;
+  background: var(--panel);
+  border: 0.15vw solid transparent;
+}
+.row.focused { border-color: var(--focus); background: var(--panel-light); }
+
+.app-icon {
+  width: 3.2vw;
+  height: 3.2vw;
+  border-radius: 0.6vw;
+  object-fit: contain;
+}
+.app-icon.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #2d3a73;
+  font-size: 1.5vw;
+  font-weight: 700;
+}
+
+.row > * { margin-right: 1.1vw; }
+.row > *:last-child { margin-right: 0; }
+.app-icon { flex: none; }
+.app-names { flex: none; width: 22vw; min-width: 0; }
+.app-bar { flex: 1; }
+.num { flex: none; width: 7.5vw; }
+.app-title, .app-id { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.app-title { font-size: 1.15vw; font-weight: 600; }
+.app-id { color: var(--dim); font-size: 0.85vw; }
+
+.app-bar {
+  display: flex;
+  height: 0.8vw;
+  border-radius: 0.4vw;
+  background: #0c1124;
+  overflow: hidden;
+}
+.seg.install { background: var(--install); }
+.seg.data { background: var(--data); }
+
+.num { text-align: right; font-variant-numeric: tabular-nums; color: var(--dim); }
+.num.total { color: var(--text); font-weight: 600; }
+
+/* ---------------------------------------------------------------- dialogs */
+
+.modal {
+  position: fixed;
+  top: 0; right: 0; bottom: 0; left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(5, 8, 20, 0.75);
+}
+
+.modal-panel {
+  width: 62vw;
+  max-height: 86vh;
+  overflow: hidden;
+  padding: 2vw 2.4vw;
+  border-radius: 1.2vw;
+  background: var(--panel);
+  box-shadow: 0 1vw 3vw rgba(0, 0, 0, 0.5);
+}
+.modal-panel h2 { margin: 0 0 0.6vw; font-size: 1.8vw; }
+.modal-buttons { display: flex; margin-top: 1.4vw; }
+.modal-buttons .button { margin-right: 0.8vw; }
+
+.folders { margin-top: 1vw; }
+.folder {
+  display: flex;
+  padding: 0.5vw 0;
+  border-bottom: 0.08vw solid #2b376b;
+}
+.folder > * { margin-right: 1vw; }
+.folder-kind { flex: none; width: 6vw; }
+.folder-size { flex: none; width: 7vw; }
+.folder-path { flex: 1; margin-right: 0; }
+.folder-kind { text-transform: capitalize; color: var(--dim); }
+.folder-kind.install { color: var(--install); }
+.folder-kind.data, .folder-kind.service { color: var(--data); }
+.folder-size { text-align: right; font-variant-numeric: tabular-nums; }
+.folder-path { word-break: break-all; color: var(--dim); font-size: 0.9vw; }
+
+.links { display: flex; justify-content: center; margin: 1.4vw 0; }
+.link { text-align: center; width: 16vw; margin: 0 1.5vw; }
+.qr { width: 11vw; height: 11vw; margin: 0 auto; background: #ffffff; border-radius: 0.6vw; overflow: hidden; }
+.qr svg { width: 100%; height: 100%; display: block; }
+.link-title { margin-top: 0.6vw; font-weight: 600; }
+.link-url { color: var(--dim); font-size: 0.9vw; }
+
+/* The column titles above the list. */
+.row.head { background: transparent; padding-top: 0; padding-bottom: 0.2vw; margin-bottom: 0.2vw; color: var(--dim); font-size: 0.9vw; }
+.row.head .app-icon { height: 0; }
+.legend { flex: 1; display: flex; align-items: center; }
+.swatch { display: inline-block; width: 0.9vw; height: 0.9vw; border-radius: 0.2vw; margin: 0 0.4vw 0 1.2vw; }
+.swatch:first-child { margin-left: 0; }
+.swatch.install { background: var(--install); }
+.swatch.data { background: var(--data); }
