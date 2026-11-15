@@ -2,7 +2,7 @@
 
 # WebSpace
 
-**Version 1.0.2** · A small app for LG webOS TVs that lists the installed apps and the storage each one
+**Version 1.0.3** · A small app for LG webOS TVs that lists the installed apps and the storage each one
 uses, so you can see what is filling the TV.
 
 - **Every app with its size:** the app's own install folder, plus the folders elsewhere that carry its

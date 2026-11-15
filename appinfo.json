@@ -1,6 +1,6 @@
 {
   "id": "org.webspace.app",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "vendor": "WebSpace",
   "type": "web",
   "main": "index.html",

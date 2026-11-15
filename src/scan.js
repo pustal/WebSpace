@@ -274,7 +274,9 @@ export async function scan(onProgress) {
   const big = apps.filter((app) => !app.system && (totalBytes(app) || 0) >= BIG_APP_BYTES && app.folders.length > 0);
   if (big.length) {
     onProgress('Looking at the largest files…');
-    const listing = big.map((app) => 'echo "@@APP ' + app.id + '"; find ' + app.folders.map((folder) => shellQuote(folder.path)).join(' ')
+    // Not the jail folders: webOS mounts other apps' folders inside them, which find may walk into.
+    const searched = (app) => app.folders.filter((folder) => folder.path.indexOf('/var/palm/jail/') !== 0);
+    const listing = big.filter((app) => searched(app).length > 0).map((app) => 'echo "@@APP ' + app.id + '"; find ' + searched(app).map((folder) => shellQuote(folder.path)).join(' ')
       + ' -xdev -type f -size +' + LARGEST_FILE_MIN_KB + "k -exec du -k {} \\; 2>/dev/null | sort -rn | head -n " + LARGEST_FILES).join('; ');
     let current = null;
     for (const line of (await runAsRootLong(listing)).split('\n')) {
